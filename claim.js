@@ -1,30 +1,56 @@
-const mongoose = require("mongoose");
+const express = require("express");
+const claimSchema = require("../models/claim");
 
-const claimSchema = mongoose.Schema({
-  nombre: {
-    type: String,
-    required: true,
-  },
-  dni: {
-    type: String,
-    required: true
-  },
-  email: {
-    type: String,
-    required: true
-  },
-  asesor: {
-      type: String,
-      required: true
-  },
-  reclamo: {
-      type: String,
-      required: true
-  },
-  fecha: {
-      type: String,
-      required: true
-  }
+const routerClaim = express.Router();
+
+//crear reclamo
+
+routerClaim.post('/claims', (req, res) => {
+    const user = claimSchema(req.body);
+    user
+        .save()
+        .then((data) => res.json(data))
+        .catch((error) => res.json({ message: error }));
 });
 
-module.exports = mongoose.model('Reclamo', claimSchema);
+//obtener todos los reclamos
+routerClaim.get("/claims", (req, res) => {
+    claimSchema
+        .find()
+        .then((data) => res.json(data))
+        .catch((error) => res.json({ message: error }));
+});
+
+// buscar un reclamo
+
+routerClaim.get("/claims/:id", (req, res) => {
+    const { id } = req.params;
+    claimSchema
+        .findById(id)
+        .then((data) => res.json(data))
+        .catch((error) => res.json({ message: error }));
+});
+
+// borrar un registro de reclamo
+
+routerClaim.delete("/claims/:id", (req, res) => {
+    const { id } = req.params;
+    claimSchema
+        .remove({ _id: id })
+        .then((data) => res.json(data))
+        .catch((error) => res.json({ message: error }));
+});
+
+// actualizar un reclamo
+
+routerClaim.put("/claims/:id", (req, res) => {
+    const { id } = req.params;
+    const { nombre,dni,email,asesor,reclamo,fecha } = req.body;
+    claimSchema
+        .updateOne({ _id: id }, { $set: { nombre,dni,email,asesor,reclamo,fecha } })
+        .then((data) => res.json(data))
+        .catch((error) => res.json({ message: error }));
+});
+
+
+module.exports = routerClaim;
